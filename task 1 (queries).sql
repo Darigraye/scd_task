@@ -200,43 +200,43 @@ select * from custom_TMP_clients;
 insert all 
 
 insert into custom_TMP_clients(id, name, surname, t_changed, t_load_id) 
-values (client_ids.nextval, 'John', 'Collins', '1', load_ids.nextval)
+values (client_ids.nextval, 'John', 'Collins', '1', load_ids.nextval);
 
 insert into custom_TMP_clients(id, name, surname, t_changed, t_load_id) 
-values (client_ids.nextval, 'Lisa', 'Fox', '2', load_ids.nextval)
+values (client_ids.nextval, 'Lisa', 'Fox', '2', load_ids.nextval);
 
 insert into custom_TMP_clients(id, name, surname, t_changed, t_load_id) 
-values (client_ids.nextval, 'Kate', 'Patric', '3', load_ids.nextval)
+values (client_ids.nextval, 'Kate', 'Patric', '1', load_ids.nextval);
 
 insert into custom_TMP_clients(id, name, surname, t_changed, t_load_id) 
-values (client_ids.nextval, 'Alex', 'Winston', '1', load_ids.nextval)
+values (client_ids.nextval, 'Alex', 'Winston', '1', load_ids.nextval);
 
 insert into custom_TMP_clients(id, name, surname, t_changed, t_load_id) 
-values (client_ids.nextval, 'Molly', 'Chase', '2', load_ids.nextval)
+values (client_ids.nextval, 'Molly', 'Chase', '2', load_ids.nextval);
 
 insert into custom_TMP_clients(id, name, surname, t_changed, t_load_id) 
-values (client_ids.nextval, 'Edward', 'Paker', '1', load_ids.nextval)
+values (client_ids.nextval, 'Edward', 'Paker', '1', load_ids.nextval);
 
 insert into custom_TMP_clients(id, name, surname, t_changed, t_load_id) 
-values (client_ids.nextval, 'Tom', 'Shell', '2', load_ids.nextval)
+values (client_ids.nextval, 'Tom', 'Shell', '2', load_ids.nextval);
 
 select * from custom_TMP_clients;
 ----------------------------------------------------------------------------
 
 insert into i_TMP_clients(id, name, surname) 
-values (148, 'John', 'Collins');
+values (157, 'John', 'Collins');
 
 insert into i_TMP_clients(id, name, surname) 
-values (149, 'Lisa', 'Fox');
+values (158, 'Lisa', 'Fox');
 
 insert into i_TMP_clients(id, name, surname) 
-values (154, 'Kate', 'Patric');
+values (159, 'Kate', 'Patric');
 
 insert into i_TMP_clients(id, name, surname) 
-values (150, 'Alex', 'Malboro');
+values (160, 'Alex', 'Malboro');
 
 insert into i_TMP_clients(id, name, surname) 
-values (151, 'Molly', 'Fox');
+values (161, 'Molly', 'Fox');
 
 insert into i_TMP_clients(id, name, surname) 
 values (client_ids.nextval, 'Jale', 'Spy');
@@ -246,5 +246,99 @@ values (client_ids.nextval, 'Cony', 'Newrby');
 
 select * from i_TMP_clients;
 
+create or replace procedure scd1
+          (load_id in number)
+is
+          cursor i_client_cur is
+                 select * from i_TMP_clients order by id;
+          i_client_rec i_client_cur%rowtype;
+          
+          cursor client_cur is
+                 select * from custom_TMP_clients order by id;
+          client_rec client_cur%rowtype;
+    
+          exists_in_main_table number;
+begin
+          open i_client_cur;
+          open client_cur;
+          
+          fetch i_client_cur into i_client_rec;    
+          fetch client_cur into client_rec;
+          
+          loop 
+               if i_client_rec.id = client_rec.id 
+               then
+                  dbms_output.put_line(client_rec.id);
+                  dbms_output.put_line(i_client_rec.id);  
+               
+                  if i_client_rec.name != client_rec.name or i_client_rec.surname != client_rec.surname -- update
+                  then
+                     update custom_TMP_clients set name = i_client_rec.name, 
+                                            surname = i_client_rec.surname,
+                                            t_changed = '2',
+                                            t_load_id = load_id,
+                                            al_udate = sysdate 
+                     where id = i_client_rec.id;
+                  end if;
+               fetch i_client_cur into i_client_rec;
+               exit when i_client_cur%notfound;
+               
+               fetch client_cur into client_rec;
+               exit when client_cur%notfound;
+               
+               elsif i_client_rec.id > client_rec.id  -- delete                  
+               then
+                     update custom_TMP_clients set t_changed = '3',
+                                                   t_load_id = load_id,
+                                                   al_udate = sysdate
+                     where id = client_rec.id;
+                     
+                     fetch client_cur into client_rec;
+                     exit when client_cur%notfound;
+               else                                   -- insert
+                     insert into custom_TMP_clients(id, 
+                                               name, 
+                                               surname,
+                                               al_cdate,
+                                               t_changed,
+                                               al_udate,
+                                               t_load_id
+                                               )
+                     values (i_client_rec.id,
+                             i_client_rec.name,
+                             i_client_rec.surname,
+                             i_client_rec.al_cdate,
+                             '1',
+                             sysdate,
+                             load_id);
+                     
+                     fetch i_client_cur into i_client_rec;
+                     exit when i_client_cur%notfound;
+               end if;                                        
+               dbms_output.put_line('llllllllllllll');                                               
+          end loop;
+          
+          if not client_cur%notfound           -- оставшиеся удалены
+          then
+             fetch client_cur into client_rec;
+             update custom_TMP_clients set t_changed = '3',
+                                           t_load_id = load_id,
+                                           al_udate = sysdate
+             where id >= client_rec.id;
+          end if;
+          
+          close i_client_cur;    
+          close client_cur;      
+end;
+
+select * from custom_TMP_clients order by id;
+select * from i_TMP_clients order by id;
+
+delete from custom_TMP_clients;
+delete from i_TMP_clients;
+
+begin
+        scd1(150);  
+end;
 
 
