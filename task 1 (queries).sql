@@ -327,6 +327,26 @@ begin
              where id >= client_rec.id;
           end if;
           
+          if not i_client_cut%notfound
+          then
+             fetch i_client_cur into i_client_rec;
+             insert into custom_TMP_clients(id, 
+                                               name, 
+                                               surname,
+                                               al_cdate,
+                                               t_changed,
+                                               al_udate,
+                                               t_load_id
+                                               )
+                     select itc.id,
+                            itc.name,
+                            itc.surname,
+                            itc.al_cdate,
+                            '1',
+                            sysdate,
+                            load_id from i_TMP_clients itc where itc.id >= i_client_rec.id;
+          end if;
+          
           close i_client_cur;    
           close client_cur;      
 end;
