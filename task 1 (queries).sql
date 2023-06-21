@@ -108,7 +108,7 @@ begin
         
         if count_adrs >= 2 then
            delete from custom_tmp_adress cta
-                  where rowid not in (select min(rowid)       -- здесь могло быть поле даты, но в нашем случае даты абсолютно одинаковые, поэтому смотрим по rowid
+                  where rowid not in (select distinct last_value(cta.rowid) over(order by cta.al_cdate asc)       -- здесь могло быть поле даты, но в нашем случае даты абсолютно одинаковые, поэтому смотрим по rowid
                                       from custom_tmp_adress cta 
                                       where cta.branch = branch_id and cta.cust_id = client_id
                                      ) and cta.branch = branch_id and cta.cust_id = client_id;
@@ -119,7 +119,7 @@ select * from custom_TMP_clients;
 select * from custom_tmp_adress;
 
 begin
-        tmp_deduplicate(121, 18);                             
+        tmp_deduplicate(112, 15);                             
 end;
 
 create or replace function tmp_link_consists
@@ -327,7 +327,7 @@ begin
              where id >= client_rec.id;
           end if;
           
-          if not i_client_cut%notfound
+          if not i_client_cur%notfound
           then
              fetch i_client_cur into i_client_rec;
              insert into custom_TMP_clients(id, 
