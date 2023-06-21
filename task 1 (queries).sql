@@ -108,10 +108,10 @@ is
 begin
           select count(*) 
                  into res 
-                 from custom_tmp_adress
-                 where cust_id not in (select id from custom_TMP_clients);
+                 from custom_tmp_adress cta
+                 where exists(select id from custom_TMP_clients where id = cta.cust_id);
           
-          if res != 0 then 
+          if res = 0 then 
             dbms_output.put_line('false');
           else
             dbms_output.put_line('true');
