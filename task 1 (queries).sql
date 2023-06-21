@@ -201,19 +201,19 @@ select * from custom_TMP_clients;
 ----------------------------------------------------------------------------
 
 insert into i_TMP_clients(id, name, surname) 
-values (115, 'John', 'Collins');
+values (136, 'John', 'Collins');
 
 insert into i_TMP_clients(id, name, surname) 
-values (116, 'Lisa', 'Fox');
+values (137, 'Lisa', 'Fox');
 
 insert into i_TMP_clients(id, name, surname) 
-values (117, 'Kate', 'Patric');
+values (138, 'Kate', 'Patric');
 
 insert into i_TMP_clients(id, name, surname) 
-values (118, 'Alex', 'Malboro');
+values (139, 'Alex', 'Malboro');
 
 insert into i_TMP_clients(id, name, surname) 
-values (119, 'Molly', 'Fox');
+values (140, 'Molly', 'Fox');
 
 insert into i_TMP_clients(id, name, surname) 
 values (client_ids.nextval, 'Jale', 'Spy');
@@ -227,119 +227,27 @@ delete from i_TMP_clients;
 create or replace procedure scd1
           (load_id in number)
 is
-          cursor i_client_cur is
-                 select * from i_TMP_clients order by id;
-          i_client_rec i_client_cur%rowtype;
-          
-          cursor client_cur is
-                 select * from custom_TMP_clients order by id;
-          client_rec client_cur%rowtype;
-    
-          start_insert_id number := -1;
 begin
-          open i_client_cur;
-          open client_cur;     
-          
-          fetch i_client_cur into i_client_rec;     
-          fetch client_cur into client_rec;
-               
-          loop 
-               if client_rec.t_changed != '3'
-               then
-                   if i_client_rec.id = client_rec.id 
-                   then
-                       if i_client_rec.name != client_rec.name or i_client_rec.surname != client_rec.surname -- update
-                       then
-                          update custom_TMP_clients set name = i_client_rec.name, 
-                                                        surname = i_client_rec.surname,
-                                                        t_changed = '2',
-                                                        t_load_id = load_id,
-                                                        al_udate = sysdate 
-                          where id = i_client_rec.id;
-                          
-                          start_insert_id := i_client_rec.id;
-                          
-                       end if;
-                       
-                         fetch i_client_cur into i_client_rec;
-                         exit when i_client_cur%notfound;
-               
-                         fetch client_cur into client_rec;
-                         exit when client_cur%notfound;
-                   elsif i_client_rec.id > client_rec.id  -- delete                  
-                   then
-                         update custom_TMP_clients set t_changed = '3',
-                                                       t_load_id = load_id,
-                                                       al_udate = sysdate
-                         where id = client_rec.id;
-                         
-                         start_insert_id := i_client_rec.id;
-                     
-                     fetch client_cur into client_rec;
-                     exit when client_cur%notfound;
-                   else
-                     insert into custom_TMP_clients(id, 
-                                               name, 
-                                               surname,
-                                               al_cdate,
-                                               t_changed,
-                                               al_udate,
-                                               t_load_id
-                                               )
-                     values (i_client_rec.id,
-                             i_client_rec.name,
-                             i_client_rec.surname,
-                             i_client_rec.al_cdate,
-                             '1',
-                             sysdate,
-                             load_id);
-                     
-                     fetch i_client_cur into i_client_rec;
-                     exit when i_client_cur%notfound;
-                   end if;      
-               else
-                  fetch client_cur into client_rec;
-                  exit when client_cur%notfound;   
-               end if;                                       
-          end loop;
-          
-          if not client_cur%notfound           -- оставшиеся удалены
-          then
-             fetch client_cur into client_rec;
-             update custom_TMP_clients set t_changed = '3',
-                                           t_load_id = load_id,
-                                           al_udate = sysdate
-             where id >= client_rec.id and t_changed != '3';
-          end if;
-          
-          if not i_client_cur%notfound         -- оставшиеся - это новые записи
-          then
-             fetch i_client_cur into i_client_rec;
+          update custom_TMP_clients set t_changed = '3',
+                                        al_udate = sysdate,
+                                        t_load_id = load_id
+          where id in (select ctc.id from custom_TMP_clients ctc
+              left join i_TMP_clients itc on itc.id = ctc.id 
+              where ctc.t_changed != '3' and itc.id is null);
              
-             if start_insert_id = -1
-             then 
-                start_insert_id := i_client_rec.id;
-             end if;
-  
-             insert into custom_TMP_clients(id, 
-                                               name, 
-                                               surname,
-                                               al_cdate,
-                                               t_changed,
-                                               al_udate,
-                                               t_load_id
-                                               )
-                     select itc.id,
-                            itc.name,
-                            itc.surname,
-                            itc.al_cdate,
-                            '1',
-                            sysdate,
-                            load_id from i_TMP_clients itc where itc.id >= start_insert_id;
-          end if;
-          
-          close i_client_cur;    
-          close client_cur;      
+          merge into custom_TMP_clients ctc
+          using (select *
+                 from i_TMP_clients 
+                ) uc 
+          on (uc.id = ctc.id) 
+          when matched then update set ctc.name = uc.name,
+                                       ctc.surname = uc.surname,
+                                       ctc.al_udate = sysdate,
+                                       ctc.t_changed = '2',
+                                       ctc.t_load_id = load_id 
+          when not matched then insert (ctc.id, ctc.name, ctc.surname, ctc.patronymic,
+                                        ctc.t_changed, ctc.al_cdate, ctc.t_load_id)
+                                values (uc.id, uc.name, uc.surname, uc.patronymic, '1', sysdate, load_id);                                                       
 end;
 
 select * from custom_TMP_clients order by id;
@@ -349,7 +257,12 @@ delete from custom_TMP_clients;
 delete from i_TMP_clients;
 
 begin
-        scd1(150);  
+        scd1(180);  
 end;
+
+
+----- scd2
+
+
 
 
