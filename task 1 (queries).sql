@@ -75,27 +75,6 @@ select * from custom_tmp_adress;
 delete from custom_TMP_clients;
 delete from custom_tmp_adress;
 
-
-create or replace procedure custom_tmp_deduplicate()
-       (client_id in number,
-        branch_id in number)
-is
-       count_adrs number;
-begin
-        select count(*) into count_adrs 
-               from custom_tmp_adress cta
-               where cta.branch_id = branch_id and cust_id = client_id;
-        
-        if count_adrs >= 2
-        then
-           delete from custom_tmp_adress 
-                  where rowid not in (select min(rowid)       -- здесь могло быть поле даты, но в нашем случае даты абсолютно одинаковые, поэтому смотрим по rowid
-                                      from custom_tmp_adress cta 
-                                      where cta.branch_id = branch_id and cust_id = client_id
-                                     ) and cta.branch_id = branch_id and cust_id = client_id;
-        end if;
-end;
-
 create or replace procedure tmp_deduplicate
        (client_id in number,
         branch_id in number)
@@ -127,16 +106,12 @@ create or replace function tmp_link_consists
 is
           res integer;
 begin
-          select distinct case when exists (
-                   select 1 from custom_tmp_adress where cust_id not in 
-                          (
-                          select id from custom_TMP_clients
-                          )
-                   ) then 0 
-                      else 1 end 
-                        into res from custom_tmp_adress;
+          select count(*) 
+                 into res 
+                 from custom_tmp_adress
+                 where cust_id not in (select id from custom_TMP_clients);
           
-          if res = 0 then 
+          if res != 0 then 
             dbms_output.put_line('false');
           else
             dbms_output.put_line('true');
