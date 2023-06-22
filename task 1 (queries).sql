@@ -201,19 +201,19 @@ select * from custom_TMP_clients;
 ----------------------------------------------------------------------------
 
 insert into i_TMP_clients(id, name, surname) 
-values (136, 'John', 'Collins');
+values (145, 'John', 'Collins');
 
 insert into i_TMP_clients(id, name, surname) 
-values (137, 'Lisa', 'Fox');
+values (146, 'Lisa', 'Fox');
 
 insert into i_TMP_clients(id, name, surname) 
-values (138, 'Kate', 'Patric');
+values (147, 'Kate', 'Patric');
 
 insert into i_TMP_clients(id, name, surname) 
-values (139, 'Alex', 'Malboro');
+values (148, 'Alex', 'Malboro');
 
 insert into i_TMP_clients(id, name, surname) 
-values (140, 'Molly', 'Fox');
+values (149, 'Molly', 'Fox');
 
 insert into i_TMP_clients(id, name, surname) 
 values (client_ids.nextval, 'Jale', 'Spy');
@@ -236,12 +236,15 @@ begin
               where ctc.t_changed != '3' and itc.id is null);
              
           merge into custom_TMP_clients ctc
-          using (select *
-                 from i_TMP_clients 
+          using (select itcs.id, itcs.name, itcs.surname, itcs.patronymic
+                 from i_TMP_clients itcs
+                 left join custom_TMP_clients ctcs on ctcs.id = itcs.id
+                 where ((ctcs.name != itcs.name or ctcs.surname != itcs.surname) and ctcs.id is not null or ctcs.id is null) 
                 ) uc 
           on (uc.id = ctc.id) 
           when matched then update set ctc.name = uc.name,
                                        ctc.surname = uc.surname,
+                                       ctc.patronymic = uc.patronymic,
                                        ctc.al_udate = sysdate,
                                        ctc.t_changed = '2',
                                        ctc.t_load_id = load_id 
@@ -257,7 +260,7 @@ delete from custom_TMP_clients;
 delete from i_TMP_clients;
 
 begin
-        scd1(180);  
+        scd1(600);  
 end;
 
 
