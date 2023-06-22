@@ -44,7 +44,8 @@ create table i_TMP_clients (
        name varchar2(32) not null,
        patronymic varchar2(64) null,
        surname varchar2(64) not null,
-       al_cdate date default sysdate
+       al_cdate date default sysdate,
+       t_changed varchar2(1 char) not null
 )
 partition by range (al_cdate)
 interval(interval '1' month)
@@ -62,54 +63,63 @@ insert into custom_TMP_clients(al_id, client_id, name, surname, t_changed, t_loa
 values (al_ids.nextval, client_ids.nextval, 'John', 'Collins', '1', load_ids.nextval, to_timestamp('14-Jul-2022 15:39:00', 'DD-Mon-RR HH24:MI:SS'), to_timestamp('15-Dec-2022 12:00:00', 'DD-Mon-RR HH24:MI:SS'), 0);
 
 insert into custom_TMP_clients(al_id, client_id, name, surname, t_changed, t_load_id, begin_date, t_is_active) 
-values (al_ids.nextval, client_ids.currval, 'John', 'Collins', '2', load_ids.nextval, sysdate, 1);
+values (al_ids.nextval, client_ids.currval, 'John', 'Collins', '2', load_ids.nextval, sysdate - 1, 1);
 
 insert into custom_TMP_clients(al_id, client_id, name, surname, t_changed, t_load_id, begin_date, t_is_active) 
-values (al_ids.nextval, client_ids.nextval, 'Lisa', 'Fox', '2', load_ids.nextval, sysdate, 1);
+values (al_ids.nextval, client_ids.nextval, 'Lisa', 'Fox', '2', load_ids.nextval, sysdate - 1, 1);
 
 insert into custom_TMP_clients(al_id, client_id, name, surname, t_changed, t_load_id, begin_date, end_date, t_is_active) 
 values (al_ids.nextval, client_ids.nextval, 'Kate', 'Patric', '1', load_ids.nextval, to_timestamp('17-Feb-2021 15:39:00', 'DD-Mon-RR HH24:MI:SS'), to_timestamp('13-Mar-2023 12:00:00', 'DD-Mon-RR HH24:MI:SS'), 0);
 
 insert into custom_TMP_clients(al_id, client_id, name, surname, t_changed, t_load_id, begin_date, t_is_active) 
-values (al_ids.nextval, client_ids.currval, 'Kate', 'Patric', '2', load_ids.nextval, sysdate, 1);
+values (al_ids.nextval, client_ids.currval, 'Kate', 'Patric', '2', load_ids.nextval, sysdate - 1, 1);
 
 insert into custom_TMP_clients(al_id, client_id, name, surname, t_changed, t_load_id, begin_date, t_is_active) 
-values (al_ids.nextval, client_ids.nextval, 'Alex', 'Winston', '1', load_ids.nextval, sysdate, 1);
+values (al_ids.nextval, client_ids.nextval, 'Alex', 'Winston', '1', load_ids.nextval, sysdate - 1, 1);
 
 insert into custom_TMP_clients(al_id, client_id, name, surname, t_changed, t_load_id, begin_date, t_is_active) 
-values (al_ids.nextval, client_ids.nextval, 'Molly', 'Chase', '2', load_ids.nextval, sysdate, 1);
+values (al_ids.nextval, client_ids.nextval, 'Molly', 'Chase', '2', load_ids.nextval, sysdate - 1, 1);
 
 insert into custom_TMP_clients(al_id, client_id, name, surname, t_changed, t_load_id, begin_date, t_is_active) 
-values (al_ids.nextval, client_ids.nextval, 'Edward', 'Paker', '1', load_ids.nextval, sysdate, 1);
+values (al_ids.nextval, client_ids.nextval, 'Edward', 'Paker', '1', load_ids.nextval, sysdate - 1, 1);
 
 insert into custom_TMP_clients(al_id, client_id, name, surname, t_changed, t_load_id, begin_date, t_is_active) 
-values (al_ids.nextval, client_ids.nextval, 'Tom', 'Shell', '1', load_ids.nextval, sysdate, 1);
+values (al_ids.nextval, client_ids.nextval, 'Tom', 'Shell', '1', load_ids.nextval, sysdate - 1, 1);
 
 select * from custom_TMP_clients;
 delete from custom_TMP_clients;
 
 ------------------------------------------
 
-insert into i_TMP_clients(id, name, surname) 
-values (108, 'John', 'Collins');
+insert into i_TMP_clients(id, name, surname, t_changed) 
+values (135, 'John', 'Collins', '2');
 
-insert into i_TMP_clients(id, name, surname) 
-values (109, 'Lisa', 'Fox');
+insert into i_TMP_clients(id, name, surname, t_changed) 
+values (136, 'Lisa', 'Fox', '2');
 
-insert into i_TMP_clients(id, name, surname) 
-values (110, 'Kate', 'Patric');
+insert into i_TMP_clients(id, name, surname, t_changed) 
+values (137, 'Kate', 'Patric', '2');
 
-insert into i_TMP_clients(id, name, surname) 
-values (111, 'Alex', 'Malboro');
+insert into i_TMP_clients(id, name, surname, t_changed) 
+values (138, 'Alex', 'Malboro', '2');
 
-insert into i_TMP_clients(id, name, surname) 
-values (112, 'Molly', 'Fox');
+insert into i_TMP_clients(id, name, surname, t_changed) 
+values (139, 'Molly', 'Fox', '2');
 
-insert into i_TMP_clients(id, name, surname) 
-values (client_ids.nextval, 'Jale', 'Spy');
+insert into i_TMP_clients(id, name, surname, t_changed) 
+values (140, 'Edward', 'Paker', '1');
 
-insert into i_TMP_clients(id, name, surname) 
-values (client_ids.nextval, 'Cony', 'Newrby');
+insert into i_TMP_clients(id, name, surname, t_changed) 
+values (141, 'Tom', 'Shell', '1');
+
+insert into i_TMP_clients(id, name, surname, t_changed) 
+values (client_ids.nextval, 'Jale', 'Spy', '1');
+
+insert into i_TMP_clients(id, name, surname, t_changed) 
+values (client_ids.nextval, 'Cony', 'Newrby', '1');
+
+insert into i_TMP_clients(id, name, surname, t_changed) 
+values (client_ids.nextval, 'Vincent', 'Mario', '3');
 
 select * from i_TMP_clients;
 
@@ -118,14 +128,6 @@ create or replace procedure scd2
 is
        count_dublicates number;
        dublicated exception;
-       
-       cursor i_client_cur is
-                 select * from i_TMP_clients order by id;
-       i_client_rec i_client_cur%rowtype;
-          
-       cursor client_cur is
-                 select * from custom_TMP_clients where t_is_active = 1 order by client_id;
-       client_rec client_cur%rowtype;
 begin
        with cd as (
        select client_id, count(*) over(partition by client_id) count_dubs
@@ -139,62 +141,73 @@ begin
        then
          raise dublicated;
        end if;
+             
+       merge into custom_TMP_clients ctc
+       using (select itcs.id, itcs.name, itcs.surname, itcs.patronymic
+              from i_TMP_clients itcs
+              left join custom_TMP_clients ctcs on ctcs.client_id = itcs.id
+              where itcs.t_changed != 3 and ((ctcs.name != itcs.name or ctcs.surname != itcs.surname) and ctcs.client_id is not null or ctcs.client_id is null)
+              ) uc 
+       on (uc.id = ctc.client_id) 
+       when matched then update set ctc.end_date = to_timestamp(to_char(trunc(current_timestamp - 1, 'DDD')) || ' 23:59:00', 'DD-Mon-RR HH24:MI:SS'),
+                                    ctc.t_is_active = 2                -- промежуточное состояние для индикации только что изменённых строк 
+       when not matched then insert (ctc.al_id,
+                                     ctc.client_id,
+                                     ctc.name,
+                                     ctc.surname,
+                                     ctc.patronymic,
+                                     ctc.t_changed,
+                                     ctc.al_cdate,
+                                     ctc.t_load_id,
+                                     ctc.begin_date,
+                                     ctc.t_is_active)
+                             values (al_ids.nextval,
+                                     uc.id,
+                                     uc.name,
+                                     uc.surname,
+                                     uc.patronymic,  
+                                     '1',
+                                     sysdate, 
+                                     load_id,
+                                     to_timestamp(to_char(trunc(current_timestamp, 'DDD')) || ' 00:00:00', 'DD-Mon-RR HH24:MI:SS'),
+                                     1
+                                     );
        
-       open i_client_cur;
-       open client_cur;
+       insert into custom_TMP_clients (al_id,
+                                     client_id,
+                                     name,
+                                     surname,
+                                     patronymic,
+                                     t_changed,
+                                     al_cdate,
+                                     t_load_id,
+                                     begin_date,
+                                     t_is_active)
+       select al_ids.nextval,
+              ctcs.client_id,
+              itc.name,
+              itc.surname,
+              itc.patronymic,
+              '2',
+              sysdate,
+              load_id,
+              to_timestamp(to_char(trunc(current_timestamp, 'DDD')) || ' 00:00:00', 'DD-Mon-RR HH24:MI:SS'),
+              1
+       from custom_TMP_clients ctcs
+       join i_TMP_clients itc on itc.id = ctcs.client_id
+       where ctcs.t_is_active = 2;  
        
-       fetch i_client_cur into i_client_rec;     
-       fetch client_cur into client_rec;
-       
-       loop
-                   if i_client_rec.id = client_rec.client_id 
-                   then
-                       if i_client_rec.name != client_rec.name or i_client_rec.surname != client_rec.surname -- update
-                       then
-                          update custom_TMP_clients set name = i_client_rec.name, 
-                                                        surname = i_client_rec.surname,
-                                                        t_changed = '2',
-                                                        t_load_id = load_id,
-                                                        al_udate = sysdate,
-                                                        t_is_active = 0,
-                                                        end_date = to_timestamp(to_char(trunc(current_timestamp - 1, 'DDD')) || ' 23:59:00', 'DD-Mon-RR HH24:MI:SS')                                                     
-                          where client_id = i_client_rec.id and t_is_active = 1;    
-                       end if;
-                       
-                         fetch i_client_cur into i_client_rec;
-                         exit when i_client_cur%notfound;
-               
-                         fetch client_cur into client_rec;
-                         exit when client_cur%notfound;
-                   else
-                     insert into custom_TMP_clients(id, 
-                                               name, 
-                                               surname,
-                                               al_cdate,
-                                               t_changed,
-                                               al_udate,
-                                               t_load_id
-                                               )
-                     values (i_client_rec.id,
-                             i_client_rec.name,
-                             i_client_rec.surname,
-                             i_client_rec.al_cdate,
-                             '1',
-                             sysdate,
-                             load_id);
-                     
-                     fetch i_client_cur into i_client_rec;
-                     exit when i_client_cur%notfound;
-                   end if;                    
-       end loop;
-       
+       update custom_TMP_clients set t_is_active = 0 where t_is_active = 2;     
 exception
   when dublicated then
-    dbms_output.put_line('there are dublicated active records in target table');
+    dbms_output.put_line('there are dublicated active records in the target table');
 end;
 
+select * from i_TMP_clients order by id;
+select * from custom_TMP_clients order by client_id, t_is_active;
+
 begin
-       scd2(170);
+       scd2(550);
 end;
 
 select to_timestamp(to_char(trunc(current_timestamp - 1, 'DDD')) || ' 23:59:00', 'DD-Mon-RR HH24:MI:SS') from dual;
