@@ -2,13 +2,16 @@
 
 SCD 1:
 Данные инкрементной таблицы:
-![image](https://github.com/Darigraye/scd_task/assets/66184513/8137dd66-3a1e-4891-a85f-707c3b963bc0)
+![image](https://github.com/Darigraye/scd_task/assets/66184513/8865719c-61e4-4eba-aa3c-35348a94b526)
+
 
 Данные целевой таблицы (до выполнения процедуры):
-![image](https://github.com/Darigraye/scd_task/assets/66184513/fd479095-d5f7-423e-b516-04cbdc33cad6)
+![image](https://github.com/Darigraye/scd_task/assets/66184513/d6257fe4-63d7-48a8-b8bc-fb692101ba32)
+
 
 Данные целевой таблицы (после выполнения процедуры):
-![image](https://github.com/Darigraye/scd_task/assets/66184513/99ea108a-eaa2-41f5-982a-5ef857590a7a)
+![image](https://github.com/Darigraye/scd_task/assets/66184513/a2d2cf4a-a26b-4dcf-a2a3-103ee8bac9ba)
+
 
 SCD 2:
 Данные целевой таблицы (в один скрин не влезло в ширину) до выполнения процедуры:
