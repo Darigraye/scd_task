@@ -231,23 +231,19 @@ begin
           update custom_TMP_clients set t_changed = '3',
                                         al_udate = sysdate,
                                         t_load_id = load_id
-          where id in (select ctc.id from custom_TMP_clients ctc
-              left join i_TMP_clients itc on itc.id = ctc.id 
-              where ctc.t_changed != '3' and itc.id is null);
+          where id not in (select itc.id from i_TMP_clients itc) and t_changed != '3';
              
           merge into custom_TMP_clients ctc
           using (select itcs.id, itcs.name, itcs.surname, itcs.patronymic
-                 from i_TMP_clients itcs
-                 left join custom_TMP_clients ctcs on ctcs.id = itcs.id
-                 where ((ctcs.name != itcs.name or ctcs.surname != itcs.surname) and ctcs.id is not null or ctcs.id is null) 
+                 from i_TMP_clients itcs) 
                 ) uc 
           on (uc.id = ctc.id) 
-          when matched then update set ctc.name = uc.name,
-                                       ctc.surname = uc.surname,
-                                       ctc.patronymic = uc.patronymic,
-                                       ctc.al_udate = sysdate,
-                                       ctc.t_changed = '2',
-                                       ctc.t_load_id = load_id 
+          when matched then update set ctc.name = case when ctc.name != uc.name then uc.name else ctc.name end,
+                                       ctc.surname = case when ctc.surname != uc.surname then uc.surname else ctc.surname end,
+                                       ctc.patronymic = case when ctc.patronymic != uc.patronymic then uc.patronymic else ctc.patronymic end
+                                       ctc.al_udate = case when ctc.name != uc.name or ctc.surname != uc.surname then sysdate else ctc.al_udate end,
+                                       ctc.t_changed = case when ctc.name != uc.name or ctc.surname != uc.surname then '2' else ctc.t_changed end,
+                                       ctc.t_load_id = case when ctc.name != uc.name or ctc.surname != uc.surname then load_id else ctc.t_load_id end 
           when not matched then insert (ctc.id, ctc.name, ctc.surname, ctc.patronymic,
                                         ctc.t_changed, ctc.al_cdate, ctc.t_load_id)
                                 values (uc.id, uc.name, uc.surname, uc.patronymic, '1', sysdate, load_id);                                                       
